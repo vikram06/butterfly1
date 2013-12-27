@@ -53,8 +53,58 @@ if ((elgg_get_context() == 'activity')) {
 	echo $wire; echo'">';echo elgg_echo('thewire:everyone');
 	
 	echo '</a></li></ul></br></br>';
+/**
+ * Friends online module
+ *
+ */
 
-	
+$title = elgg_echo('your friends online');   
+
+$options = array(
+	'type' => 'user',
+	"limit" => FALSE,
+	'relationship' => 'friend',
+	'relationship_guid' => elgg_get_logged_in_user_guid(),
+	'inverse_relationship' => FALSE,
+	'full_view' => FALSE,
+	'pagination' => FALSE,
+	'list_type' => 'gallery',
+	'gallery_class' => 'elgg-gallery-users',
+);		
+$friends_online = elgg_get_entities_from_relationship($options);
+
+$result = '';
+foreach ($friends_online as $online) {
+	if ($online->last_action > time() - 300) {
+		$result .= elgg_view_entity_icon($online, 'tiny');
+	} 
+}
+if ($result) {
+	echo elgg_view_module('featured', $title, $result);
+} else {
+	$result = elgg_echo('no friend online');
+	echo elgg_view_module('featured', $title, $result);
+}
+elgg_push_context('widgets');
+
+$title = elgg_view('output/url', array(
+	'href' => "/members",
+	'text' => elgg_echo('latest members'),
+	'is_trusted' => true,
+));
+
+$options = array(
+	'type' => 'user', 
+	'full_view' => false,
+	'pagination' => FALSE,
+	'limit' => $num,
+	'list_type' => 'gallery'
+);
+$content = elgg_list_entities($options);
+
+elgg_pop_context();
+
+echo elgg_view_module('featured', $title, $content);
 	
 }
 }
